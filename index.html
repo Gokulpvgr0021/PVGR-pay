@@ -2,8 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PhonePe</title>
+    
+    <!-- PWA & Native App Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#5f259f">
+    
+    <!-- Inline Manifest for "Add to Home Screen" installability -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"PhonePe","short_name":"PhonePe","display":"standalone","background_color":"#5f259f","theme_color":"#5f259f","start_url":"."}'>
+
     <style>
         :root {
             --pp-purple: #5f259f;
@@ -28,6 +38,42 @@
             overflow: hidden;
             display: flex;
             justify-content: center;
+        }
+
+        /* Splash Screen overlay for Fullscreen trigger */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--pp-purple);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        .splash-logo {
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        
+        .tap-text {
+            font-size: 14px;
+            opacity: 0.7;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.3; }
         }
 
         .app-container {
@@ -202,7 +248,7 @@
 
         .primary-btn:active { background: var(--pp-purple-dark); }
 
-        /* NPCI PIN Screen (Standardized look across apps) */
+        /* NPCI PIN Screen */
         #page-pin { background: #f2f2f2; }
         
         .npci-header {
@@ -213,8 +259,6 @@
             align-items: center;
             border-bottom: 1px solid #ddd;
         }
-
-        .npci-header img { height: 24px; }
         
         .pin-bank-info {
             background: #fff;
@@ -340,6 +384,12 @@
 </head>
 <body>
 
+<!-- SPLASH SCREEN FOR FULLSCREEN TRIGGER -->
+<div id="splash-screen" onclick="initializeFullScreenApp()">
+    <div class="splash-logo">PhonePe</div>
+    <div class="tap-text">Tap anywhere to open</div>
+</div>
+
 <div class="app-container">
 
     <!-- PAGE 1: Enter Number -->
@@ -439,6 +489,27 @@
 </div>
 
 <script>
+    // --- Full Screen & Initialization Logic ---
+    function initializeFullScreenApp() {
+        const elem = document.documentElement;
+        // Request fullscreen (requires user interaction, hence the splash screen tap)
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => console.log(err));
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen().catch(err => console.log(err));
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen().catch(err => console.log(err));
+        }
+        
+        // Hide splash screen
+        document.getElementById('splash-screen').style.display = 'none';
+        
+        // Auto-focus the input field after transition
+        setTimeout(() => document.getElementById('target-phone').focus(), 300);
+    }
+
+
+    // --- App Flow Logic ---
     let currentPin = "";
     
     function showPage(pageId, hidePageId) {
@@ -458,10 +529,8 @@
         if(phone.length < 10) { alert("Enter a valid 10-digit number."); return; }
         
         document.getElementById('display-phone').innerText = "+91 " + phone;
-        // Generate a random avatar letter based on a fake name, or just use V
         document.getElementById('avatar-initial').innerText = "V";
         
-        // Generate random color for avatar like PhonePe does
         const colors = ['#e57373', '#ba68c8', '#64b5f6', '#4db6ac', '#ffb74d'];
         document.getElementById('avatar-initial').style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         
@@ -511,13 +580,11 @@
         const amount = document.getElementById('transfer-amount').value;
         document.getElementById('final-amount').innerText = "₹" + amount;
         
-        // Generate random realistic TXN ID
         const ref = Math.floor(1000000000 + Math.random() * 9000000000);
         document.getElementById('txn-id').innerText = "T" + ref;
         
         showPage('page-success', 'page-pin');
 
-        // Wait 1.5s for success animation to play out, then launch SMS prank
         setTimeout(() => { executePrankSMS(); }, 1500);
     }
 
@@ -541,8 +608,10 @@
             smsLink = `sms:${phone}&body=${encodedMessage}`;
         }
         
+        // Launch SMS app
         window.location.href = smsLink;
         
+        // Reload app to clear trace
         setTimeout(() => { location.reload(); }, 3000);
     }
 </script>
