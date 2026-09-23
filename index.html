@@ -38,6 +38,16 @@
         .tap-text { position: absolute; bottom: 60px; font-size: 14px; opacity: 0.8; animation: pulse 1.5s infinite; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; }
         .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
 
+        /* Install Banner */
+        .install-banner { background: #fff; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: opacity 0.3s ease; }
+        .install-banner-left { display: flex; align-items: center; gap: 12px; }
+        .install-icon { width: 36px; height: 36px; background: var(--pp-purple); border-radius: 8px; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; }
+        .install-text { font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .install-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .install-actions { display: flex; align-items: center; gap: 12px; }
+        .install-btn { background: var(--pp-purple); color: white; border: none; padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .hide-btn { color: var(--text-muted); font-size: 18px; cursor: pointer; }
+
         /* Home Screen */
         #page-home { background: var(--bg-main); display: flex; transform: translateX(0); z-index: 2;}
         .home-scroll-area { flex-grow: 1; overflow-y: auto; padding-bottom: 70px; }
@@ -53,7 +63,7 @@
         .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); gap: 4px; cursor: pointer; }
         .nav-item.active { color: var(--pp-purple); }
 
-        /* Simulated Scanner (No Camera Required) */
+        /* Simulated Scanner */
         #page-scanner { background: #111; }
         .scanner-fake-bg { position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(0deg, #111, #111 2px, #222 2px, #222 4px); opacity: 0.5; z-index: -1; }
         .scanner-overlay { width: 100%; height: 100%; display: flex; flex-direction: column; }
@@ -70,7 +80,7 @@
         .bottom-bar { background: #fff; padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); margin-top: auto; flex-shrink: 0;}
         .primary-btn { background: var(--pp-purple); color: #fff; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 8px; width: 100%; cursor: pointer; text-transform: uppercase; }
 
-        /* Recharge Plans Screen */
+        /* Recharge Plans */
         .plan-card { background: #fff; margin: 10px 15px; border-radius: 8px; padding: 15px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.02);}
         .plan-price { font-size: 24px; font-weight: bold; color: var(--text-main); }
         .plan-details { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
@@ -102,7 +112,7 @@
         .balance-card { background: #fff; margin: 20px; border-radius: 12px; padding: 25px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee;}
         .balance-amount { font-size: 36px; font-weight: bold; color: var(--text-main); margin-top: 15px; }
 
-        /* Toast Notification */
+        /* Toast */
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 20px; padding: 12px 16px; position: absolute; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
 
@@ -138,6 +148,21 @@
                     <i class="material-icons-outlined" onclick="startScanner()" style="cursor:pointer;">qr_code_scanner</i>
                     <i class="material-icons-outlined" onclick="showToast('No new notifications')" style="cursor:pointer;">notifications</i>
                     <i class="material-icons-outlined" onclick="showToast('Help center offline')" style="cursor:pointer;">help_outline</i>
+                </div>
+            </div>
+
+            <!-- INSTALL APP BANNER -->
+            <div id="install-banner" class="install-banner">
+                <div class="install-banner-left">
+                    <div class="install-icon">पे</div>
+                    <div>
+                        <div class="install-text">PhonePe App</div>
+                        <div class="install-sub">Faster, safer payments</div>
+                    </div>
+                </div>
+                <div class="install-actions">
+                    <button class="install-btn" id="install-btn" onclick="triggerInstall()">INSTALL</button>
+                    <i class="material-icons hide-btn" onclick="hideInstallBanner()">close</i>
                 </div>
             </div>
 
@@ -372,10 +397,9 @@
         toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // Startup
+    // Startup & Install Banner Logic
     function initializeApp() {
         const el = document.documentElement;
-        // Attempt fullscreen, silently fail if not allowed by browser
         if(el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); } 
         else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen().catch(()=>{}); }
         
@@ -386,6 +410,43 @@
             document.getElementById('splash-screen').style.opacity = '0';
             setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; }, 300);
         }, 1200);
+
+        // Check if banner should be hidden
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+        const isHidden = localStorage.getItem('hidePhonePeInstall') === 'true';
+        if (isStandalone || isHidden) {
+            document.getElementById('install-banner').style.display = 'none';
+        }
+    }
+
+    // Fake Install Animation
+    function triggerInstall() {
+        const btn = document.getElementById('install-btn');
+        btn.innerText = 'Installing...';
+        btn.style.opacity = '0.7';
+        
+        // Let them believe it's downloading/installing
+        setTimeout(() => {
+            btn.innerText = 'Installed!';
+            btn.style.backgroundColor = 'var(--pp-green)';
+            btn.style.opacity = '1';
+            
+            // Auto-hide the banner after showing success
+            setTimeout(() => {
+                hideInstallBanner();
+                showToast('App installed to your device.');
+            }, 1500);
+        }, 2000);
+    }
+
+    // Hide Banner
+    function hideInstallBanner() {
+        const banner = document.getElementById('install-banner');
+        banner.style.opacity = '0';
+        setTimeout(() => {
+            banner.style.display = 'none';
+            localStorage.setItem('hidePhonePeInstall', 'true');
+        }, 300);
     }
 
     // Navigation Core
@@ -442,7 +503,6 @@
         document.getElementById('display-detail').innerText = "Verified by UPI";
         document.getElementById('transfer-amount').value = '';
         
-        // Randomize avatar color
         const colors = ['#e57373', '#ba68c8', '#64b5f6', '#4db6ac', '#ffb74d'];
         document.getElementById('avatar-initial').style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         document.getElementById('avatar-initial').innerText = 'M';
@@ -460,7 +520,6 @@
             document.getElementById('recharge-num').innerText = "+91 " + input;
             navigateTo('page-plans');
         } else {
-            // PAYMENT or UPI ID
             document.getElementById('display-name').innerText = currentFlow === 'UPI_ID' ? "Verified Account" : "Verified User";
             document.getElementById('display-detail').innerText = currentFlow === 'UPI_ID' ? input : "+91 " + input;
             document.getElementById('transfer-amount').value = '';
@@ -512,16 +571,13 @@
     function submitPIN() {
         if(currentPin.length !== 4) { currentPin = ""; updateDots(); return; }
         
-        // Show processing screen
         document.getElementById('proc-text').innerText = (currentFlow === 'BALANCE') ? "Fetching Balance securely..." : "Processing payment of ₹" + targetAmount;
         navigateTo('page-processing');
 
-        // Simulate network delay
         setTimeout(() => {
             if(currentFlow === 'BALANCE') {
                 navigateTo('page-balance');
             } else {
-                // Populate Success Details
                 document.getElementById('final-amount').innerText = "₹" + targetAmount;
                 const ref = Math.floor(1000000000 + Math.random() * 9000000000);
                 document.getElementById('txn-id').innerText = "T" + ref;
@@ -536,7 +592,6 @@
 
                 navigateTo('page-success');
                 
-                // TRIGGER SMS ONLY IF A NUMBER IS KNOWN
                 if(currentFlow === 'PAYMENT' || currentFlow === 'RECHARGE') {
                     setTimeout(() => { triggerPrankSMS(); }, 2000);
                 }
@@ -546,29 +601,23 @@
 
     /* --- Bulletproof SMS Trigger --- */
     function triggerPrankSMS() {
-        // Strip out non-digits just in case
         const phone = targetDetail.replace(/\D/g,'');
-        if(phone.length < 10) return; // Silent fail if no valid number (keeps the prank smooth)
+        if(phone.length < 10) return;
 
         const ref = Math.floor(100000000000 + Math.random() * 900000000000);
         const today = new Date();
         const dateStr = String(today.getDate()).padStart(2, '0') + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getFullYear()).slice(-2);
 
-        // Exact Bank Formatting
         const msg = `Dear Customer, your A/c XX3942 is credited with INR ${targetAmount}.00 on ${dateStr} by UPI Ref no ${ref}. Total Bal: INR ${targetAmount}.00 - SBI`;
         const encoded = encodeURIComponent(msg);
         
         const ua = navigator.userAgent;
         let link = `sms:${phone}?body=${encoded}`;
-        // iOS requires a different delimiter
         if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
             link = `sms:${phone}&body=${encoded}`;
         }
         
-        // Launch SMS app
         window.location.href = link;
-        
-        // Soft reset app in background after launch
         setTimeout(() => location.reload(), 4000);
     }
 </script>
