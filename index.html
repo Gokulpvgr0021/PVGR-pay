@@ -1,0 +1,448 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PVGR Pay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons for modern UI icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background for desktop to show mobile frame */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mobile Container styling for desktop viewing */
+        .app-container {
+            width: 100%;
+            max-width: 414px; /* iPhone Max width */
+            height: 100vh;
+            max-height: 896px;
+            background-color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 415px) {
+            .app-container {
+                height: 90vh;
+                border-radius: 30px;
+                border: 8px solid #1f2937;
+            }
+        }
+
+        /* Hide scrollbar for clean app look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Views management */
+        .view {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #f9fafb;
+            z-index: 10;
+        }
+        .view.active {
+            display: flex;
+        }
+
+        /* Checkmark Animation CSS */
+        .success-animation {
+            margin: 40px auto;
+        }
+        .checkmark {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 4;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #22c55e;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+            position: relative;
+            top: 5px;
+            right: 5px;
+            margin: 0 auto;
+        }
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 4;
+            stroke-miterlimit: 10;
+            stroke: #22c55e;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        @keyframes stroke {
+            100% { stroke-dashoffset: 0; }
+        }
+        @keyframes scale {
+            0%, 100% { transform: none; }
+            50% { transform: scale3d(1.1, 1.1, 1); }
+        }
+        @keyframes fill {
+            100% { box-shadow: inset 0px 0px 0px 60px #22c55e; }
+        }
+        
+        /* Modal slide up animation */
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .slide-up {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- ==================== HOME VIEW ==================== -->
+        <div id="home-view" class="view active overflow-y-auto no-scrollbar bg-gray-50 pb-20">
+            <!-- Header -->
+            <header class="bg-blue-700 text-white p-5 pt-8 rounded-b-3xl shadow-lg relative z-10">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                            <i class="ph ph-user text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold leading-tight">PVGR Pay</h1>
+                            <p class="text-xs text-blue-200">Powered by Ponarasi Enterprise</p>
+                        </div>
+                    </div>
+                    <button class="p-2 bg-white/10 rounded-full backdrop-blur-sm">
+                        <i class="ph ph-bell text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Balance Card -->
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-5 shadow-inner border border-white/10 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl"></div>
+                    <p class="text-blue-100 text-sm mb-1">Available Balance</p>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-3xl font-bold">₹12,450.00</span>
+                        <button onclick="toggleBalance()" class="text-blue-200 hover:text-white transition">
+                            <i class="ph ph-eye-slash" id="balance-eye"></i>
+                        </button>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="bg-white/20 px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 backdrop-blur-md">
+                            <i class="ph ph-bank"></i> HDFC Bank
+                        </div>
+                        <div class="bg-white/20 px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 backdrop-blur-md">
+                            <i class="ph ph-shield-check"></i> Secure
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Quick Actions Grid -->
+            <div class="px-5 -mt-4 relative z-20">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 grid grid-cols-4 gap-4 text-center">
+                    <button class="flex flex-col items-center gap-2 group">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl group-hover:bg-blue-100 transition">
+                            <i class="ph ph-qr-code"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-600">Scan & Pay</span>
+                    </button>
+                    <button onclick="openSendMoney()" class="flex flex-col items-center gap-2 group">
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center text-2xl group-hover:bg-purple-100 transition">
+                            <i class="ph ph-paper-plane-tilt"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-600">Send Money</span>
+                    </button>
+                    <button class="flex flex-col items-center gap-2 group">
+                        <div class="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-2xl group-hover:bg-green-100 transition">
+                            <i class="ph ph-wallet"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-600">Self Transfer</span>
+                    </button>
+                    <button class="flex flex-col items-center gap-2 group">
+                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center text-2xl group-hover:bg-orange-100 transition">
+                            <i class="ph ph-receipt"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-600">Bills & DTH</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="mt-6 px-5 flex-1">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-800">Recent Transactions</h3>
+                    <a href="#" class="text-sm text-blue-600 font-medium">View All</a>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Transaction Item 1 -->
+                    <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold">
+                                S
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-800">Swiggy</h4>
+                                <p class="text-xs text-gray-500">Today, 1:30 PM</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-gray-800">-₹340</p>
+                            <p class="text-[10px] text-green-600 font-medium">Success</p>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Item 2 -->
+                    <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                                A
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-800">Arun Kumar</h4>
+                                <p class="text-xs text-gray-500">Yesterday, 9:15 AM</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-green-600">+₹1,200</p>
+                            <p class="text-[10px] text-green-600 font-medium">Success</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Transaction Item 3 -->
+                    <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xl">
+                                <i class="ph ph-lightning"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-800">Electricity Bill</h4>
+                                <p class="text-xs text-gray-500">20 Sep, 4:00 PM</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-gray-800">-₹850</p>
+                            <p class="text-[10px] text-green-600 font-medium">Success</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 w-full bg-white border-t border-gray-200 flex justify-around py-3 pb-5 text-gray-500">
+                <button class="flex flex-col items-center text-blue-600">
+                    <i class="ph-fill ph-house text-2xl"></i>
+                    <span class="text-[10px] mt-1 font-medium">Home</span>
+                </button>
+                <button class="flex flex-col items-center hover:text-blue-600 transition">
+                    <i class="ph ph-clock-counter-clockwise text-2xl"></i>
+                    <span class="text-[10px] mt-1 font-medium">History</span>
+                </button>
+                <button class="flex flex-col items-center hover:text-blue-600 transition">
+                    <i class="ph ph-qr-code text-2xl"></i>
+                    <span class="text-[10px] mt-1 font-medium">My QR</span>
+                </button>
+                <button class="flex flex-col items-center hover:text-blue-600 transition">
+                    <i class="ph ph-user text-2xl"></i>
+                    <span class="text-[10px] mt-1 font-medium">Profile</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== SEND MONEY VIEW ==================== -->
+        <div id="send-view" class="view bg-white z-20 slide-up hidden flex-col h-full">
+            <header class="flex items-center p-5 border-b border-gray-100 bg-white">
+                <button onclick="closeSendMoney()" class="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600">
+                    <i class="ph ph-arrow-left text-xl"></i>
+                </button>
+                <h2 class="ml-2 text-lg font-bold text-gray-800">Send Money</h2>
+            </header>
+            
+            <div class="p-5 flex-1 flex flex-col">
+                <form id="payment-form" onsubmit="processPayment(event)" class="flex-1 flex flex-col">
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pay to (UPI ID or Number)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <i class="ph ph-at"></i>
+                            </div>
+                            <input type="text" id="upi-id" required placeholder="e.g. name@okhdfcbank" class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 outline-none transition" value="demo@pvgrpay">
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Amount (₹)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-600 font-bold text-xl">
+                                ₹
+                            </div>
+                            <input type="number" id="amount" required placeholder="0.00" min="1" step="any" class="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 outline-none text-2xl font-bold transition text-gray-800" value="500">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Available Balance: ₹12,450.00</p>
+                    </div>
+
+                    <div class="mb-auto">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Add a note (Optional)</label>
+                        <input type="text" id="note" placeholder="What's this for?" class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 outline-none transition">
+                    </div>
+
+                    <div class="mt-8 mb-4">
+                        <button type="submit" id="pay-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition flex justify-center items-center gap-2">
+                            <span>Proceed to Pay</span>
+                            <i class="ph ph-arrow-right font-bold"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ==================== SUCCESS VIEW ==================== -->
+        <div id="success-view" class="view bg-white z-30 hidden flex-col justify-center items-center h-full text-center p-6">
+            <div class="success-animation">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-gray-800 mt-4 mb-2">Payment Successful!</h2>
+            <p class="text-gray-500 text-sm mb-6">Your transaction has been processed by PVGR Pay.</p>
+            
+            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-6 w-full max-w-sm mb-8 shadow-sm">
+                <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
+                    <span class="text-gray-500 text-sm">Amount Paid</span>
+                    <span class="text-2xl font-bold text-gray-800" id="success-amount">₹0.00</span>
+                </div>
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-gray-500 text-sm">Paid to</span>
+                    <span class="font-semibold text-gray-800" id="success-upi">...</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-sm">Txn ID</span>
+                    <span class="text-xs font-mono text-gray-600 bg-gray-200 px-2 py-1 rounded">TXN<span id="success-txn">123456789</span></span>
+                </div>
+            </div>
+
+            <button onclick="goHome()" class="w-full max-w-sm bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 rounded-xl transition mt-auto mb-4">
+                Done
+            </button>
+            <p class="text-[10px] text-gray-400">PVGR Pay • Ponarasi Enterprise</p>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM Elements
+        const homeView = document.getElementById('home-view');
+        const sendView = document.getElementById('send-view');
+        const successView = document.getElementById('success-view');
+        const balanceEye = document.getElementById('balance-eye');
+        const payBtn = document.getElementById('pay-btn');
+
+        // State
+        let isBalanceVisible = true;
+
+        // Toggle Balance Visibility
+        function toggleBalance() {
+            isBalanceVisible = !isBalanceVisible;
+            const balanceSpan = balanceEye.parentElement.previousElementSibling;
+            if(isBalanceVisible) {
+                balanceSpan.textContent = '₹12,450.00';
+                balanceEye.classList.remove('ph-eye');
+                balanceEye.classList.add('ph-eye-slash');
+            } else {
+                balanceSpan.textContent = '•••••••';
+                balanceEye.classList.remove('ph-eye-slash');
+                balanceEye.classList.add('ph-eye');
+            }
+        }
+
+        // View Navigation
+        function openSendMoney() {
+            homeView.classList.remove('active');
+            sendView.classList.add('active');
+            sendView.style.display = 'flex'; // override for animation class
+            
+            // Reset form just in case
+            document.getElementById('amount').value = '500';
+            document.getElementById('upi-id').value = 'demo@pvgrpay';
+            document.getElementById('note').value = '';
+            payBtn.innerHTML = `<span>Proceed to Pay</span><i class="ph ph-arrow-right font-bold"></i>`;
+            payBtn.disabled = false;
+        }
+
+        function closeSendMoney() {
+            sendView.classList.remove('active');
+            sendView.style.display = 'none';
+            homeView.classList.add('active');
+        }
+
+        function goHome() {
+            successView.classList.remove('active');
+            successView.style.display = 'none';
+            homeView.classList.add('active');
+        }
+
+        // Handle Payment Process
+        function processPayment(e) {
+            e.preventDefault();
+            
+            const upiId = document.getElementById('upi-id').value;
+            const amount = document.getElementById('amount').value;
+            
+            if(!upiId || !amount || amount <= 0) return;
+
+            // Simulate loading state
+            payBtn.disabled = true;
+            payBtn.innerHTML = `<i class="ph ph-spinner animate-spin text-xl"></i> <span>Processing...</span>`;
+
+            // Simulate network delay
+            setTimeout(() => {
+                // Populate success data
+                document.getElementById('success-amount').textContent = `₹${parseFloat(amount).toFixed(2)}`;
+                document.getElementById('success-upi').textContent = upiId;
+                document.getElementById('success-txn').textContent = Math.floor(100000000 + Math.random() * 900000000);
+
+                // Switch views
+                sendView.classList.remove('active');
+                sendView.style.display = 'none';
+                successView.classList.add('active');
+                successView.style.display = 'flex';
+                
+            }, 1500); // 1.5 seconds simulated delay
+        }
+    </script>
+</body>
+</html>
+```
