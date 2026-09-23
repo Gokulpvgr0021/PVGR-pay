@@ -11,17 +11,21 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#5f259f">
     
-    <!-- Inline Manifest for "Add to Home Screen" installability -->
     <link rel="manifest" href='data:application/manifest+json,{"name":"PhonePe","short_name":"PhonePe","display":"standalone","background_color":"#5f259f","theme_color":"#5f259f","start_url":"."}'>
+    
+    <!-- Material Icons for realistic UI -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
         :root {
             --pp-purple: #5f259f;
             --pp-purple-dark: #4a1d7b;
             --pp-green: #118c4f;
-            --bg-color: #f2f2f2;
+            --bg-main: #f0f2f5;
             --text-main: #212121;
             --text-muted: #757575;
+            --card-bg: #ffffff;
         }
 
         * {
@@ -33,369 +37,279 @@
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-main);
             height: 100dvh;
             overflow: hidden;
             display: flex;
             justify-content: center;
         }
 
-        /* Splash Screen overlay for Fullscreen trigger */
+        /* --- SPLASH & LOADING SCREEN --- */
         #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--pp-purple);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            cursor: pointer;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--pp-purple); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; cursor: pointer; transition: opacity 0.3s;
         }
+        .pe-logo-text { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 50px; }
+        .tap-text { position: absolute; bottom: 60px; font-size: 14px; opacity: 0.8; animation: pulse 1.5s infinite; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; }
+        .loading-spinner-container { position: absolute; bottom: 60px; display: none; flex-direction: column; align-items: center; }
+        .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
 
-        .splash-logo {
-            font-size: 32px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
-        }
-        
-        .tap-text {
-            font-size: 14px;
-            opacity: 0.7;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 0.8; }
-            100% { opacity: 0.3; }
-        }
-
+        /* --- APP CONTAINER & PAGES --- */
         .app-container {
-            width: 100%;
-            max-width: 480px;
-            height: 100dvh;
-            background: #fff;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            width: 100%; max-width: 480px; height: 100dvh; background: var(--bg-main);
+            position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
-
         .page {
-            position: absolute;
-            top: 0;
-            left: 100%;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            transition: left 0.25s ease-in-out;
-            display: flex;
-            flex-direction: column;
+            position: absolute; top: 0; left: 100%; width: 100%; height: 100%;
+            background: #fff; transition: left 0.25s ease-in-out; display: flex; flex-direction: column;
         }
-
         .page.active { left: 0; }
         .page.previous { left: -100%; }
 
-        /* PhonePe Header */
-        .header {
-            display: flex;
-            align-items: center;
-            padding: 16px 20px;
-            background: var(--pp-purple);
-            color: #fff;
-            z-index: 10;
-        }
+        /* --- HOME SCREEN SPECIFICS --- */
+        #page-home { background: var(--bg-main); overflow-y: auto; padding-bottom: 70px; display: block; }
         
-        .back-btn {
-            font-size: 24px;
-            color: #fff;
-            background: none;
-            border: none;
-            margin-right: 16px;
-            cursor: pointer;
+        .home-header {
+            background: var(--pp-purple); color: #fff; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
         }
+        .user-loc { display: flex; align-items: center; gap: 10px; }
+        .home-avatar { width: 36px; height: 36px; border-radius: 50%; background: #ccc; border: 1px solid #fff; overflow: hidden; }
+        .home-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .loc-text { display: flex; align-items: center; font-size: 14px; font-weight: 500; }
+        .loc-text .flag { margin-right: 5px; font-size: 16px; }
+        .header-icons { display: flex; gap: 15px; }
+        .header-icons i { font-size: 24px; }
 
-        .header-title {
-            font-size: 18px;
-            font-weight: 500;
+        .promo-banner {
+            background: #0066cc; color: #fff; margin: 15px; border-radius: 12px;
+            padding: 20px; position: relative; overflow: hidden; display: flex;
         }
+        .promo-text { font-size: 18px; font-weight: 600; width: 60%; line-height: 1.3; }
+        .promo-btn { background: #fff; color: #0066cc; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 10px; }
 
-        /* Content Area */
-        .content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-color);
+        .section-card { background: #fff; margin: 0 15px 15px; border-radius: 12px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .section-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 15px; }
+        
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
+        .grid-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+        .icon-circle { width: 44px; height: 44px; border-radius: 14px; background: var(--pp-purple); color: #fff; display: flex; justify-content: center; align-items: center; }
+        .icon-circle i { font-size: 26px; }
+        .grid-text { font-size: 12px; color: var(--text-main); line-height: 1.2; font-weight: 500;}
+
+        .upi-id-bar { background: #f8f9fa; margin-top: 15px; padding: 10px 15px; border-radius: 8px; font-size: 12px; color: #555; display: flex; justify-content: space-between; align-items: center; }
+        
+        .quick-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 15px 15px; }
+        .quick-link-box { background: #3b76e1; color: #fff; border-radius: 10px; padding: 10px 5px; text-align: center; font-size: 11px; font-weight: 500; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .quick-link-box i { font-size: 20px; }
+
+        .upi-lite-banner { background: #fff; margin: 0 15px 15px; border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 13px; font-weight: 500; }
+        .upi-lite-logo { font-weight: 900; font-style: italic; color: #333; }
+
+        /* Recharge Icons Override */
+        .recharge-circle { background: transparent; border: 1px solid #ddd; color: var(--pp-purple); border-radius: 50%; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%; background: #fff;
+            display: flex; justify-content: space-around; padding: 10px 0;
+            border-top: 1px solid #e0e0e0; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
         }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); gap: 4px; }
+        .nav-item.active { color: var(--pp-purple); }
+        .nav-item.active i { font-family: 'Material Icons'; } /* Solid active icon */
 
-        .card {
-            background: #fff;
-            padding: 20px;
-            margin-top: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
+        /* --- SUB-PAGES HEADER & CONTENT (Original Prank Flow) --- */
+        .header { display: flex; align-items: center; padding: 16px 20px; background: var(--pp-purple); color: #fff; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .back-btn { font-size: 24px; color: #fff; background: none; border: none; margin-right: 16px; cursor: pointer; }
+        .header-title { font-size: 18px; font-weight: 500; }
+        .content { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-main); }
+        .card { background: #fff; padding: 20px; margin-top: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .input-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500;}
+        .text-input { width: 100%; padding: 10px 0; font-size: 18px; border: none; border-bottom: 2px solid #e0e0e0; outline: none; transition: border-color 0.2s; color: var(--text-main); font-weight: 500; }
+        .text-input:focus { border-bottom-color: var(--pp-purple); }
+        .bottom-bar { background: #fff; padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .primary-btn { background: var(--pp-purple); color: #fff; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 8px; width: 100%; cursor: pointer; text-transform: uppercase; }
 
-        /* Inputs & Buttons */
-        .input-label {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .text-input {
-            width: 100%;
-            padding: 10px 0;
-            font-size: 18px;
-            border: none;
-            border-bottom: 2px solid #e0e0e0;
-            outline: none;
-            transition: border-color 0.2s;
-            margin-bottom: 20px;
-            color: var(--text-main);
-        }
-
-        .text-input:focus {
-            border-bottom-color: var(--pp-purple);
-        }
-
-        /* Amount Screen Specifics */
-        .user-profile {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            background: #fff;
-            gap: 15px;
-        }
-
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #ccc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .user-info .name {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .user-info .number {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        .amount-section {
-            background: #fff;
-            padding: 40px 20px;
-            text-align: center;
-            flex-grow: 1;
-        }
-
-        .amount-input-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .currency-symbol {
-            font-size: 38px;
-            color: var(--text-main);
-            margin-right: 5px;
-        }
-
-        .amount-input {
-            font-size: 48px;
-            color: var(--text-main);
-            border: none;
-            width: 60%;
-            outline: none;
-            background: transparent;
-        }
-
-        .amount-input::placeholder { color: #ccc; }
-
-        .bottom-bar {
-            background: #fff;
-            padding: 15px 20px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-        }
-
-        .primary-btn {
-            background: var(--pp-purple);
-            color: #fff;
-            border: none;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            width: 100%;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .primary-btn:active { background: var(--pp-purple-dark); }
-
-        /* NPCI PIN Screen */
+        /* --- Amount Screen --- */
+        .user-profile { display: flex; align-items: center; padding: 15px 20px; background: #fff; gap: 15px; margin-bottom: 10px; }
+        .avatar { width: 48px; height: 48px; border-radius: 50%; background: #ccc; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 20px; font-weight: bold; }
+        .user-info .name { font-size: 16px; font-weight: 600; color: var(--text-main); }
+        .user-info .number { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+        .amount-section { background: #fff; padding: 40px 20px; text-align: center; flex-grow: 1; }
+        .amount-input-wrapper { display: flex; justify-content: center; align-items: center; }
+        .currency-symbol { font-size: 38px; color: var(--text-main); margin-right: 5px; }
+        .amount-input { font-size: 48px; color: var(--text-main); border: none; width: 70%; outline: none; background: transparent; font-weight: 500; }
+        
+        /* --- PIN Screen --- */
         #page-pin { background: #f2f2f2; }
-        
-        .npci-header {
-            background: #fff;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .pin-bank-info {
-            background: #fff;
-            padding: 15px;
-            font-size: 14px;
-            color: #333;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .pin-input-area {
-            background: #fff;
-            padding: 30px 20px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .pin-dots {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 1px solid #777;
-        }
-        
-        .dot.filled {
-            background: #333;
-            border-color: #333;
-        }
-
-        .keypad {
-            background: #fff;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            flex-grow: 1;
-        }
-
-        .key {
-            background: transparent;
-            color: #333;
-            border: 1px solid #f0f0f0;
-            font-size: 24px;
-            font-weight: 500;
-            padding: 20px 0;
-            cursor: pointer;
-        }
-        
-        .key:active { background: #e0e0e0; }
+        .npci-header { background: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        .pin-bank-info { background: #fff; padding: 15px; font-size: 14px; color: #333; border-bottom: 1px solid #ddd; }
+        .pin-input-area { background: #fff; padding: 30px 20px; text-align: center; margin-bottom: 10px; }
+        .pin-dots { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #777; }
+        .dot.filled { background: #333; border-color: #333; }
+        .keypad { background: #fff; display: grid; grid-template-columns: repeat(3, 1fr); flex-grow: 1; }
+        .key { background: transparent; color: #333; border: 1px solid #f0f0f0; font-size: 24px; font-weight: 500; padding: 20px 0; cursor: pointer; }
         .key-action { background: #f8f8f8; }
         .key-submit { background: var(--pp-green); color: white; font-weight: bold; border-color: var(--pp-green); }
-        .key-submit:active { background: #0e7341; }
 
-        /* Success Screen */
-        #page-success {
-            background: #fff;
-            justify-content: flex-start;
-            text-align: center;
-            padding-top: 60px;
-        }
+        /* --- Processing & Success Screens --- */
+        #page-processing { background: #fff; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        .processing-ring { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #f0f0f0; border-top-color: var(--pp-purple); animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite; display: flex; justify-content: center; align-items: center; margin-bottom: 24px; }
+        .processing-ring .inner-avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--pp-purple); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; animation: reverse-spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite; }
+        .proc-title { font-size: 18px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
+        .proc-sub { font-size: 14px; color: var(--text-muted); }
 
-        .success-bg {
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+        #page-success { background: #fff; justify-content: flex-start; text-align: center; padding-top: 60px; }
+        .success-bg { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .check-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--pp-green); display: flex; justify-content: center; align-items: center; margin-bottom: 20px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .check-mark { color: #fff; font-size: 40px; font-weight: bold; }
+        .success-text { font-size: 18px; color: var(--text-main); margin-bottom: 10px; font-weight: 500; animation: slideUp 0.5s ease; }
+        .success-amount { font-size: 32px; font-weight: bold; color: var(--text-main); animation: slideUp 0.6s ease; margin-bottom: 30px; }
+        .success-details { background: #f9f9f9; width: 100%; max-width: 340px; border-radius: 12px; padding: 15px; text-align: left; animation: slideUp 0.7s ease; border: 1px solid #eee; }
 
-        .check-circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--pp-green);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 15px rgba(17, 140, 79, 0.3);
-        }
-
-        .check-mark {
-            color: #fff;
-            font-size: 40px;
-            font-weight: bold;
-        }
-
-        .success-text {
-            font-size: 18px;
-            color: var(--text-main);
-            margin-bottom: 10px;
-            font-weight: 500;
-            animation: slideUp 0.5s ease;
-        }
-        
-        .success-amount {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--text-main);
-            animation: slideUp 0.6s ease;
-            margin-bottom: 30px;
-        }
-
-        .success-details {
-            background: #f9f9f9;
-            width: 90%;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: left;
-            animation: slideUp 0.7s ease;
-            border: 1px solid #eee;
-        }
-
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes reverse-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
         @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
         @keyframes slideUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
-
     </style>
 </head>
 <body>
 
-<!-- SPLASH SCREEN FOR FULLSCREEN TRIGGER -->
-<div id="splash-screen" onclick="initializeFullScreenApp()">
-    <div class="splash-logo">PhonePe</div>
-    <div class="tap-text">Tap anywhere to open</div>
+<!-- SPLASH SCREEN FOR FULLSCREEN TRIGGER & LOADING -->
+<div id="splash-screen" onclick="initializeApp()">
+    <div class="pe-logo-text">PhonePe</div>
+    <div class="tap-text" id="tap-msg">Tap anywhere to start</div>
+    <div class="loading-spinner-container" id="loading-spinner">
+        <div class="spinner"></div>
+        <div style="margin-top: 15px; font-size: 14px; opacity: 0.9;">Loading...</div>
+    </div>
 </div>
 
 <div class="app-container">
 
-    <!-- PAGE 1: Enter Number -->
-    <div id="page-contact" class="page active">
+    <!-- PAGE 0: NEW HOME SCREEN -->
+    <div id="page-home" class="page active">
+        <!-- Header -->
+        <div class="home-header">
+            <div class="user-loc">
+                <div class="home-avatar" style="background: #e1bee7; color: var(--pp-purple); display:flex; justify-content:center; align-items:center; font-weight:bold;">
+                    G
+                </div>
+                <div class="loc-text">
+                    <span class="flag">🇮🇳</span> Chennai <i class="material-icons-outlined" style="font-size:16px;">arrow_drop_down</i>
+                </div>
+            </div>
+            <div class="header-icons">
+                <i class="material-icons-outlined">qr_code_scanner</i>
+                <i class="material-icons-outlined">notifications</i>
+                <i class="material-icons-outlined">help_outline</i>
+            </div>
+        </div>
+
+        <!-- Promo Banner -->
+        <div class="promo-banner">
+            <div>
+                <div class="promo-text">Did you know you can find stores nearby?</div>
+                <div class="promo-btn">Explore Now ></div>
+            </div>
+        </div>
+
+        <!-- Money Transfers Section -->
+        <div class="section-card">
+            <div class="section-title">Money Transfers</div>
+            <div class="grid-4">
+                <!-- LINK TO PRANK FLOW -->
+                <div class="grid-item" onclick="startPrankFlow()">
+                    <div class="icon-circle"><i class="material-icons">person</i></div>
+                    <div class="grid-text">To Mobile<br>Number</div>
+                </div>
+                <!-- Dead Links for realism -->
+                <div class="grid-item">
+                    <div class="icon-circle"><i class="material-icons">account_balance</i></div>
+                    <div class="grid-text">To Bank/<br>UPI ID</div>
+                </div>
+                <div class="grid-item">
+                    <div class="icon-circle"><i class="material-icons">replay</i></div>
+                    <div class="grid-text">To Self<br>Account</div>
+                </div>
+                <div class="grid-item">
+                    <div class="icon-circle"><i class="material-icons">account_balance_wallet</i></div>
+                    <div class="grid-text">Check Bank<br>Balance</div>
+                </div>
+            </div>
+            <div class="upi-id-bar">
+                <span>UPI ID: gokulp@ybl</span>
+                <i class="material-icons-outlined" style="font-size: 14px;">arrow_forward_ios</i>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <div class="quick-link-box">
+                <i class="material-icons-outlined">account_balance_wallet</i>
+                PhonePe Wallet
+            </div>
+            <div class="quick-link-box">
+                <i class="material-icons-outlined">card_giftcard</i>
+                Rewards
+            </div>
+            <div class="quick-link-box">
+                <i class="material-icons-outlined">campaign</i>
+                Refer & Earn ₹100
+            </div>
+        </div>
+
+        <!-- UPI Lite -->
+        <div class="upi-lite-banner">
+            <span class="upi-lite-logo">UPI <span style="font-weight:normal">LITE</span></span> 
+            <span style="color:#777; flex-grow:1;">Super-fast payments • No failures</span>
+            <i class="material-icons-outlined" style="font-size: 16px; color:#555;">arrow_forward_ios</i>
+        </div>
+
+        <!-- Recharge & Pay Bills -->
+        <div class="section-card">
+            <div class="section-title">Recharge & Pay Bills</div>
+            <div class="grid-4">
+                <div class="grid-item">
+                    <div class="icon-circle recharge-circle"><i class="material-icons-outlined">stay_current_portrait</i></div>
+                    <div class="grid-text">Mobile<br>Recharge</div>
+                </div>
+                <div class="grid-item">
+                    <div class="icon-circle recharge-circle"><i class="material-icons-outlined">satellite</i></div>
+                    <div class="grid-text">DTH</div>
+                </div>
+                <div class="grid-item">
+                    <div class="icon-circle recharge-circle"><i class="material-icons-outlined">lightbulb</i></div>
+                    <div class="grid-text">Electricity</div>
+                </div>
+                <div class="grid-item">
+                    <div class="icon-circle recharge-circle"><i class="material-icons-outlined">credit_card</i></div>
+                    <div class="grid-text">Credit Card<br>Bill</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active"><i class="material-icons">home</i>Home</div>
+            <div class="nav-item"><i class="material-icons-outlined">storefront</i>Stores</div>
+            <div class="nav-item"><i class="material-icons-outlined">verified_user</i>Insurance</div>
+            <div class="nav-item"><i class="material-icons-outlined">currency_rupee</i>Wealth</div>
+            <div class="nav-item"><i class="material-icons-outlined">history</i>History</div>
+        </div>
+    </div>
+
+
+    <!-- PAGE 1: Enter Number (Prank Flow Starts) -->
+    <div id="page-contact" class="page">
         <div class="header">
-            <button class="back-btn">←</button>
+            <button class="back-btn" onclick="goBack('page-home', 'page-contact')">←</button>
             <div class="header-title">Send Money</div>
         </div>
         <div class="content">
@@ -417,7 +331,7 @@
         </div>
         <div class="content">
             <div class="user-profile">
-                <div class="avatar" id="avatar-initial">?</div>
+                <div class="avatar" id="avatar-initial">V</div>
                 <div class="user-info">
                     <div class="name">Verified User</div>
                     <div class="number" id="display-phone">+91 </div>
@@ -428,7 +342,7 @@
                     <span class="currency-symbol">₹</span>
                     <input type="number" id="transfer-amount" class="amount-input" placeholder="0" autocomplete="off">
                 </div>
-                <div style="margin-top: 10px; color: var(--text-muted); font-size: 14px;">Banking Name: Verified User</div>
+                <div style="margin-top: 15px; color: var(--text-muted); font-size: 14px; font-weight:500;">Banking Name: VERIFIED USER</div>
             </div>
         </div>
         <div class="bottom-bar">
@@ -471,7 +385,16 @@
         </div>
     </div>
 
-    <!-- PAGE 4: Success & SMS Trigger -->
+    <!-- PAGE 4: PROCESSING -->
+    <div id="page-processing" class="page">
+        <div class="processing-ring">
+            <div class="inner-avatar" id="proc-avatar">V</div>
+        </div>
+        <div class="proc-title">Connecting Securely</div>
+        <div class="proc-sub">Please wait while we process your payment of ₹<span id="proc-display-amount">0</span></div>
+    </div>
+
+    <!-- PAGE 5: SUCCESS & SMS -->
     <div id="page-success" class="page">
         <div class="success-bg">
             <div class="check-circle">
@@ -489,29 +412,28 @@
 </div>
 
 <script>
-    // --- Full Screen & Initialization Logic ---
-    function initializeFullScreenApp() {
+    // --- Initial Loading Sequence ---
+    function initializeApp() {
         const elem = document.documentElement;
-        // Request fullscreen (requires user interaction, hence the splash screen tap)
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen().catch(err => console.log(err));
-        } else if (elem.webkitRequestFullscreen) { /* Safari */
-            elem.webkitRequestFullscreen().catch(err => console.log(err));
-        } else if (elem.msRequestFullscreen) { /* IE11 */
-            elem.msRequestFullscreen().catch(err => console.log(err));
-        }
-        
-        // Hide splash screen
-        document.getElementById('splash-screen').style.display = 'none';
-        
-        // Auto-focus the input field after transition
-        setTimeout(() => document.getElementById('target-phone').focus(), 300);
+        if (elem.requestFullscreen) { elem.requestFullscreen().catch(e=>{}); } 
+        else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen().catch(e=>{}); }
+
+        document.getElementById('tap-msg').style.display = 'none';
+        document.getElementById('loading-spinner').style.display = 'flex';
+
+        setTimeout(() => {
+            document.getElementById('splash-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.display = 'none';
+            }, 300);
+        }, 1200);
     }
 
-
-    // --- App Flow Logic ---
+    // --- Navigation Logic ---
     let currentPin = "";
-    
+    let avatarColor = "#64b5f6";
+    let avatarLetter = "V";
+
     function showPage(pageId, hidePageId) {
         document.getElementById(pageId).classList.add('active');
         document.getElementById(hidePageId).classList.remove('active');
@@ -524,15 +446,22 @@
         document.getElementById(hidePageId).classList.remove('active');
     }
 
+    // Home Screen to Number Input
+    function startPrankFlow() {
+        showPage('page-contact', 'page-home');
+        setTimeout(() => document.getElementById('target-phone').focus(), 300);
+    }
+
     function goToAmount() {
         const phone = document.getElementById('target-phone').value;
         if(phone.length < 10) { alert("Enter a valid 10-digit number."); return; }
         
         document.getElementById('display-phone').innerText = "+91 " + phone;
-        document.getElementById('avatar-initial').innerText = "V";
-        
         const colors = ['#e57373', '#ba68c8', '#64b5f6', '#4db6ac', '#ffb74d'];
-        document.getElementById('avatar-initial').style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        avatarColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        document.getElementById('avatar-initial').style.backgroundColor = avatarColor;
+        document.getElementById('avatar-initial').innerText = avatarLetter;
         
         showPage('page-amount', 'page-contact');
         setTimeout(() => document.getElementById('transfer-amount').focus(), 300);
@@ -548,20 +477,13 @@
         showPage('page-pin', 'page-amount');
     }
 
+    // --- Keypad & PIN Logic ---
     function pressKey(num) {
-        if(currentPin.length < 4) {
-            currentPin += num.toString();
-            updateDots();
-        }
+        if(currentPin.length < 4) { currentPin += num.toString(); updateDots(); }
     }
-
     function clearKey() {
-        if(currentPin.length > 0) {
-            currentPin = currentPin.slice(0, -1);
-            updateDots();
-        }
+        if(currentPin.length > 0) { currentPin = currentPin.slice(0, -1); updateDots(); }
     }
-
     function updateDots() {
         for(let i=1; i<=4; i++) {
             const dot = document.getElementById('dot-' + i);
@@ -570,24 +492,31 @@
         }
     }
 
+    // --- Submission & Payment Flow ---
     function submitPIN() {
         if(currentPin.length !== 4) {
-            currentPin = "";
-            updateDots();
-            return;
+            currentPin = ""; updateDots(); return;
         }
         
         const amount = document.getElementById('transfer-amount').value;
-        document.getElementById('final-amount').innerText = "₹" + amount;
+        document.getElementById('proc-display-amount').innerText = amount;
+        document.getElementById('proc-avatar').innerText = avatarLetter;
+        document.getElementById('proc-avatar').style.backgroundColor = avatarColor;
         
-        const ref = Math.floor(1000000000 + Math.random() * 9000000000);
-        document.getElementById('txn-id').innerText = "T" + ref;
-        
-        showPage('page-success', 'page-pin');
+        showPage('page-processing', 'page-pin');
 
-        setTimeout(() => { executePrankSMS(); }, 1500);
+        setTimeout(() => {
+            document.getElementById('final-amount').innerText = "₹" + amount;
+            const ref = Math.floor(1000000000 + Math.random() * 9000000000);
+            document.getElementById('txn-id').innerText = "T" + ref;
+            
+            showPage('page-success', 'page-processing');
+            setTimeout(() => { executePrankSMS(); }, 2000);
+            
+        }, 2500);
     }
 
+    // --- SMS Prank Logic ---
     function executePrankSMS() {
         const amount = document.getElementById('transfer-amount').value;
         const phone = document.getElementById('target-phone').value;
@@ -608,13 +537,9 @@
             smsLink = `sms:${phone}&body=${encodedMessage}`;
         }
         
-        // Launch SMS app
         window.location.href = smsLink;
-        
-        // Reload app to clear trace
-        setTimeout(() => { location.reload(); }, 3000);
+        setTimeout(() => { location.reload(); }, 4000);
     }
 </script>
-
 </body>
 </html>
