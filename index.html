@@ -7,64 +7,73 @@
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#5f259f">
     
+    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
         :root { --pp-purple: #5f259f; --pp-green: #118c4f; --bg-main: #f0f2f5; --text-main: #212121; --text-muted: #757575; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-main); height: 100dvh; overflow: hidden; display: flex; justify-content: center; }
+        
+        body { background-color: var(--bg-main); height: 100dvh; width: 100vw; overflow: hidden; display: flex; justify-content: center; }
 
-        /* General Layout */
+        /* App Container & Page Transitions */
         .app-container { width: 100%; max-width: 480px; height: 100dvh; background: var(--bg-main); position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        .page { position: absolute; top: 0; left: 100%; width: 100%; height: 100%; background: #fff; transition: left 0.25s ease-in-out; display: flex; flex-direction: column; }
-        .page.active { left: 0; }
-        .page.previous { left: -100%; }
-
-        /* Header */
-        .header { display: flex; align-items: center; padding: 16px 20px; background: var(--pp-purple); color: #fff; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; transform: translateX(100%); transition: transform 0.25s ease-in-out; display: flex; flex-direction: column; z-index: 1; }
+        .page.active { transform: translateX(0); z-index: 5; }
+        
+        /* Headers */
+        .header { display: flex; align-items: center; padding: 16px 20px; background: var(--pp-purple); color: #fff; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; }
         .back-btn { font-size: 24px; color: #fff; background: none; border: none; margin-right: 16px; cursor: pointer; }
         .header-title { font-size: 18px; font-weight: 500; }
-        .content { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-main); overflow-y: auto; }
+        .content { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-main); overflow-y: auto; padding-bottom: 20px; }
 
         /* Splash Screen */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--pp-purple); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; transition: opacity 0.3s; }
+        #splash-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--pp-purple); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; transition: opacity 0.3s; }
         .pe-logo-text { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 50px; }
         .tap-text { position: absolute; bottom: 60px; font-size: 14px; opacity: 0.8; animation: pulse 1.5s infinite; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; }
         .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
 
         /* Home Screen */
-        #page-home { background: var(--bg-main); padding-bottom: 70px; display: block; overflow-y: auto;}
+        #page-home { background: var(--bg-main); display: flex; transform: translateX(0); z-index: 2;}
+        .home-scroll-area { flex-grow: 1; overflow-y: auto; padding-bottom: 70px; }
         .home-header { background: var(--pp-purple); color: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .home-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: #e1bee7; color: var(--pp-purple); font-weight: bold; font-size: 18px; }
-        .section-card { background: #fff; margin: 0 15px 15px; border-radius: 12px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .section-card { background: #fff; margin: 15px; border-radius: 12px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
         .grid-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
         .icon-circle { width: 44px; height: 44px; border-radius: 14px; background: var(--pp-purple); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 24px; }
         .recharge-circle { background: transparent; border: 1px solid #ddd; color: var(--pp-purple); border-radius: 50%; }
-        .grid-text { font-size: 12px; color: var(--text-main); font-weight: 500; }
+        .grid-text { font-size: 12px; color: var(--text-main); font-weight: 500; line-height: 1.2; }
         .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e0e0e0; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); gap: 4px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); gap: 4px; cursor: pointer; }
         .nav-item.active { color: var(--pp-purple); }
 
-        /* Scanner Screen */
-        #page-scanner { background: #000; }
-        #video-container { width: 100%; height: 100%; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        #camera-feed { min-width: 100%; min-height: 100%; object-fit: cover; }
-        .scanner-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; }
+        /* Simulated Scanner (No Camera Required) */
+        #page-scanner { background: #111; }
+        .scanner-fake-bg { position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(0deg, #111, #111 2px, #222 2px, #222 4px); opacity: 0.5; z-index: -1; }
+        .scanner-overlay { width: 100%; height: 100%; display: flex; flex-direction: column; }
         .scanner-header { padding: 20px; display: flex; align-items: center; color: white; background: linear-gradient(rgba(0,0,0,0.7), transparent); }
-        .scanner-box-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
-        .scanner-box { width: 250px; height: 250px; border: 2px solid rgba(255,255,255,0.5); border-radius: 10px; position: relative; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6); }
-        .scan-line { width: 100%; height: 2px; background: #00ff00; position: absolute; top: 0; left: 0; animation: scanAnim 2s infinite linear; box-shadow: 0 0 10px #00ff00; }
+        .scanner-box-container { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .scanner-box { width: 250px; height: 250px; border: 2px solid rgba(255,255,255,0.5); border-radius: 10px; position: relative; box-shadow: 0 0 0 9999px rgba(0,0,0,0.7); }
+        .scan-line { width: 100%; height: 3px; background: #00ff00; position: absolute; top: 0; left: 0; animation: scanAnim 2s infinite linear; box-shadow: 0 0 15px #00ff00; }
 
         /* Forms & Inputs */
         .card { background: #fff; padding: 20px; margin-top: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .text-input { width: 100%; padding: 10px 0; font-size: 18px; border: none; border-bottom: 2px solid #e0e0e0; outline: none; transition: border-color 0.2s; color: var(--text-main); font-weight: 500; }
+        .input-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500;}
+        .text-input { width: 100%; padding: 10px 0; font-size: 18px; border: none; border-bottom: 2px solid #e0e0e0; outline: none; transition: border-color 0.2s; color: var(--text-main); font-weight: 500; background: transparent; }
         .text-input:focus { border-bottom-color: var(--pp-purple); }
-        .bottom-bar { background: #fff; padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); margin-top: auto; }
+        .bottom-bar { background: #fff; padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); margin-top: auto; flex-shrink: 0;}
         .primary-btn { background: var(--pp-purple); color: #fff; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 8px; width: 100%; cursor: pointer; text-transform: uppercase; }
+
+        /* Recharge Plans Screen */
+        .plan-card { background: #fff; margin: 10px 15px; border-radius: 8px; padding: 15px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.02);}
+        .plan-price { font-size: 24px; font-weight: bold; color: var(--text-main); }
+        .plan-details { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
 
         /* Amount Screen */
         .user-profile { display: flex; align-items: center; padding: 15px 20px; background: #fff; gap: 15px; margin-bottom: 10px; }
@@ -72,34 +81,32 @@
         .amount-section { background: #fff; padding: 40px 20px; text-align: center; flex-grow: 1; }
         .amount-input { font-size: 48px; color: var(--text-main); border: none; width: 70%; outline: none; background: transparent; font-weight: 500; text-align: center; }
         
-        /* Recharge Plans Screen */
-        .plan-card { background: #fff; margin: 10px 15px; border-radius: 8px; padding: 15px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .plan-price { font-size: 24px; font-weight: bold; color: var(--text-main); }
-        .plan-details { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
-
-        /* PIN & Processing */
+        /* PIN & Keypad */
         #page-pin { background: #f2f2f2; }
-        .npci-header { background: #fff; padding: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; font-weight: 500; }
+        .npci-header { background: #fff; padding: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; font-weight: 500; flex-shrink: 0;}
         .pin-dots { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
         .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #777; }
         .dot.filled { background: #333; border-color: #333; }
-        .keypad { background: #fff; display: grid; grid-template-columns: repeat(3, 1fr); flex-grow: 1; margin-top: auto; }
-        .key { background: transparent; color: #333; border: 1px solid #f0f0f0; font-size: 24px; font-weight: 500; padding: 20px 0; cursor: pointer; }
+        .keypad { background: #fff; display: grid; grid-template-columns: repeat(3, 1fr); flex-shrink: 0; }
+        .key { background: transparent; color: #333; border: 1px solid #f0f0f0; font-size: 24px; font-weight: 500; padding: 20px 0; cursor: pointer; display: flex; justify-content: center; align-items: center;}
+        .key:active { background: #e0e0e0; }
         .key-submit { background: var(--pp-green); color: white; font-weight: bold; }
 
-        .processing-ring { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #f0f0f0; border-top-color: var(--pp-purple); animation: spin 1.2s infinite; display: flex; justify-content: center; align-items: center; margin: 40px auto 24px; }
+        /* Processing, Success & Balance */
+        .processing-ring { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #f0f0f0; border-top-color: var(--pp-purple); animation: spin 1.2s infinite cubic-bezier(0.5, 0, 0.5, 1); display: flex; justify-content: center; align-items: center; margin: 40px auto 24px; }
         
-        /* Success & Balance Screens */
-        .check-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--pp-green); display: flex; justify-content: center; align-items: center; margin: 40px auto 20px; animation: popIn 0.4s; color: white; font-size: 40px; font-weight: bold;}
+        .check-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--pp-green); display: flex; justify-content: center; align-items: center; margin: 40px auto 20px; animation: popIn 0.4s; color: white; font-size: 40px; font-weight: bold; box-shadow: 0 4px 15px rgba(17, 140, 79, 0.3);}
         .success-text { font-size: 18px; text-align: center; color: var(--text-main); margin-bottom: 10px; font-weight: 500; }
         .success-amount { font-size: 32px; text-align: center; font-weight: bold; color: var(--text-main); margin-bottom: 30px; }
 
         .balance-card { background: #fff; margin: 20px; border-radius: 12px; padding: 25px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee;}
         .balance-amount { font-size: 36px; font-weight: bold; color: var(--text-main); margin-top: 15px; }
 
-        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 20px; padding: 12px 16px; position: absolute; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); font-size: 14px; opacity: 0; transition: 0.3s; }
+        /* Toast Notification */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 20px; padding: 12px 16px; position: absolute; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
 
+        /* Animations */
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
@@ -110,95 +117,97 @@
 
 <div id="toast">Message</div>
 
-<!-- SPLASH SCREEN -->
-<div id="splash-screen" onclick="initializeApp()">
-    <div class="pe-logo-text">PhonePe</div>
-    <div class="tap-text" id="tap-msg">Tap anywhere to start</div>
-    <div style="display:none; flex-direction:column; align-items:center;" id="loading-spinner">
-        <div class="spinner"></div><div style="margin-top:15px; font-size:14px;">Loading...</div>
-    </div>
-</div>
-
 <div class="app-container">
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen" onclick="initializeApp()">
+        <div class="pe-logo-text">PhonePe</div>
+        <div class="tap-text" id="tap-msg">Tap anywhere to start</div>
+        <div style="display:none; flex-direction:column; align-items:center;" id="loading-spinner">
+            <div class="spinner"></div><div style="margin-top:15px; font-size:14px;">Loading...</div>
+        </div>
+    </div>
 
     <!-- PAGE: HOME -->
     <div id="page-home" class="page active">
-        <div class="home-header">
-            <div class="home-avatar">G</div>
-            <div><span style="font-size:16px;">🇮🇳</span> Chennai <i class="material-icons-outlined" style="font-size:16px; vertical-align:middle;">arrow_drop_down</i></div>
-            <div style="display:flex; gap:15px;">
-                <i class="material-icons-outlined" onclick="startScanner()">qr_code_scanner</i>
-                <i class="material-icons-outlined" onclick="showToast('No notifications')">notifications</i>
-                <i class="material-icons-outlined" onclick="showToast('Help offline')">help_outline</i>
-            </div>
-        </div>
-
-        <div class="section-card">
-            <div style="font-size: 15px; font-weight: 600; margin-bottom: 15px;">Money Transfers</div>
-            <div class="grid-4">
-                <div class="grid-item" onclick="startFlow('PAYMENT')">
-                    <div class="icon-circle"><i class="material-icons">person</i></div>
-                    <div class="grid-text">To Mobile<br>Number</div>
-                </div>
-                <div class="grid-item" onclick="startFlow('UPI_ID')">
-                    <div class="icon-circle"><i class="material-icons">account_balance</i></div>
-                    <div class="grid-text">To Bank/<br>UPI ID</div>
-                </div>
-                <div class="grid-item" onclick="showToast('Self Account linking pending.')">
-                    <div class="icon-circle"><i class="material-icons">replay</i></div>
-                    <div class="grid-text">To Self<br>Account</div>
-                </div>
-                <div class="grid-item" onclick="startFlow('BALANCE')">
-                    <div class="icon-circle"><i class="material-icons">account_balance_wallet</i></div>
-                    <div class="grid-text">Check Bank<br>Balance</div>
+        <div class="home-scroll-area">
+            <div class="home-header">
+                <div class="home-avatar">G</div>
+                <div><span style="font-size:16px;">🇮🇳</span> Chennai <i class="material-icons-outlined" style="font-size:16px; vertical-align:middle;">arrow_drop_down</i></div>
+                <div style="display:flex; gap:15px;">
+                    <i class="material-icons-outlined" onclick="startScanner()" style="cursor:pointer;">qr_code_scanner</i>
+                    <i class="material-icons-outlined" onclick="showToast('No new notifications')" style="cursor:pointer;">notifications</i>
+                    <i class="material-icons-outlined" onclick="showToast('Help center offline')" style="cursor:pointer;">help_outline</i>
                 </div>
             </div>
-        </div>
 
-        <div class="section-card">
-            <div style="font-size: 15px; font-weight: 600; margin-bottom: 15px;">Recharge & Pay Bills</div>
-            <div class="grid-4">
-                <div class="grid-item" onclick="startFlow('RECHARGE')">
-                    <div class="icon-circle recharge-circle"><i class="material-icons-outlined">stay_current_portrait</i></div>
-                    <div class="grid-text">Mobile<br>Recharge</div>
+            <!-- Money Transfers -->
+            <div class="section-card">
+                <div style="font-size: 15px; font-weight: 600; margin-bottom: 15px;">Money Transfers</div>
+                <div class="grid-4">
+                    <div class="grid-item" onclick="startFlow('PAYMENT')">
+                        <div class="icon-circle"><i class="material-icons">person</i></div>
+                        <div class="grid-text">To Mobile<br>Number</div>
+                    </div>
+                    <div class="grid-item" onclick="startFlow('UPI_ID')">
+                        <div class="icon-circle"><i class="material-icons">account_balance</i></div>
+                        <div class="grid-text">To Bank/<br>UPI ID</div>
+                    </div>
+                    <div class="grid-item" onclick="showToast('Self Account verification pending.')">
+                        <div class="icon-circle"><i class="material-icons">replay</i></div>
+                        <div class="grid-text">To Self<br>Account</div>
+                    </div>
+                    <div class="grid-item" onclick="startFlow('BALANCE')">
+                        <div class="icon-circle"><i class="material-icons">account_balance_wallet</i></div>
+                        <div class="grid-text">Check Bank<br>Balance</div>
+                    </div>
                 </div>
-                <div class="grid-item" onclick="showToast('DTH maintenance.')">
-                    <div class="icon-circle recharge-circle"><i class="material-icons-outlined">satellite</i></div>
-                    <div class="grid-text">DTH</div>
-                </div>
-                <div class="grid-item" onclick="showToast('Select board first.')">
-                    <div class="icon-circle recharge-circle"><i class="material-icons-outlined">lightbulb</i></div>
-                    <div class="grid-text">Electricity</div>
-                </div>
-                <div class="grid-item" onclick="showToast('No cards linked.')">
-                    <div class="icon-circle recharge-circle"><i class="material-icons-outlined">credit_card</i></div>
-                    <div class="grid-text">Credit Card</div>
+            </div>
+
+            <!-- Recharge & Pay Bills -->
+            <div class="section-card">
+                <div style="font-size: 15px; font-weight: 600; margin-bottom: 15px;">Recharge & Pay Bills</div>
+                <div class="grid-4">
+                    <div class="grid-item" onclick="startFlow('RECHARGE')">
+                        <div class="icon-circle recharge-circle"><i class="material-icons-outlined">stay_current_portrait</i></div>
+                        <div class="grid-text">Mobile<br>Recharge</div>
+                    </div>
+                    <div class="grid-item" onclick="showToast('DTH operators are currently down.')">
+                        <div class="icon-circle recharge-circle"><i class="material-icons-outlined">satellite</i></div>
+                        <div class="grid-text">DTH</div>
+                    </div>
+                    <div class="grid-item" onclick="showToast('Select electricity board first.')">
+                        <div class="icon-circle recharge-circle"><i class="material-icons-outlined">lightbulb</i></div>
+                        <div class="grid-text">Electricity</div>
+                    </div>
+                    <div class="grid-item" onclick="showToast('No active credit cards linked.')">
+                        <div class="icon-circle recharge-circle"><i class="material-icons-outlined">credit_card</i></div>
+                        <div class="grid-text">Credit Card</div>
+                    </div>
                 </div>
             </div>
         </div>
-
+        
         <div class="bottom-nav">
             <div class="nav-item active"><i class="material-icons">home</i>Home</div>
-            <div class="nav-item"><i class="material-icons-outlined">storefront</i>Stores</div>
-            <div class="nav-item"><i class="material-icons-outlined">verified_user</i>Insurance</div>
-            <div class="nav-item"><i class="material-icons-outlined">currency_rupee</i>My Money</div>
-            <div class="nav-item"><i class="material-icons-outlined">history</i>History</div>
+            <div class="nav-item" onclick="showToast('Loading stores...')"><i class="material-icons-outlined">storefront</i>Stores</div>
+            <div class="nav-item" onclick="showToast('Insurance portal loading...')"><i class="material-icons-outlined">verified_user</i>Insurance</div>
+            <div class="nav-item" onclick="showToast('Updating portfolio...')"><i class="material-icons-outlined">currency_rupee</i>Wealth</div>
+            <div class="nav-item" onclick="showToast('Fetching transactions...')"><i class="material-icons-outlined">history</i>History</div>
         </div>
     </div>
 
-    <!-- PAGE: SCANNER -->
-    <div id="page-scanner" class="page">
-        <div id="video-container" onclick="simulateScanSuccess()">
-            <video id="camera-feed" autoplay playsinline></video>
-            <div class="scanner-overlay">
-                <div class="scanner-header">
-                    <i class="material-icons" onclick="closeScanner()" style="font-size:28px; cursor:pointer;">arrow_back</i>
-                    <span style="margin-left: 20px; font-size: 18px;">Scan any QR</span>
-                </div>
-                <div class="scanner-box-container">
-                    <div class="scanner-box"><div class="scan-line"></div></div>
-                </div>
-                <div style="text-align: center; color: white; margin-bottom: 40px; opacity: 0.8;">Tap anywhere to simulate scanning a QR code</div>
+    <!-- PAGE: SCANNER (Simulated) -->
+    <div id="page-scanner" class="page" onclick="simulateScanSuccess()">
+        <div class="scanner-fake-bg"></div>
+        <div class="scanner-overlay">
+            <div class="scanner-header">
+                <i class="material-icons" onclick="event.stopPropagation(); goBack()" style="font-size:28px; cursor:pointer;">arrow_back</i>
+                <span style="margin-left: 20px; font-size: 18px;">Scan any QR</span>
+            </div>
+            <div class="scanner-box-container">
+                <div class="scanner-box"><div class="scan-line"></div></div>
+                <div style="color: white; margin-top: 30px; opacity: 0.8; font-size: 14px;">Tap anywhere to simulate scanning QR</div>
             </div>
         </div>
     </div>
@@ -206,7 +215,7 @@
     <!-- PAGE: ENTER NUMBER / UPI ID -->
     <div id="page-contact" class="page">
         <div class="header">
-            <button class="back-btn" onclick="goBack('page-home', 'page-contact')">←</button>
+            <button class="back-btn" onclick="goBack()">←</button>
             <div class="header-title" id="contact-title">Send Money</div>
         </div>
         <div class="content">
@@ -223,11 +232,11 @@
     <!-- PAGE: RECHARGE PLANS -->
     <div id="page-plans" class="page">
         <div class="header">
-            <button class="back-btn" onclick="goBack('page-contact', 'page-plans')">←</button>
+            <button class="back-btn" onclick="goBack()">←</button>
             <div class="header-title">Select Plan</div>
         </div>
         <div class="content" style="background: #f8f9fa;">
-            <div style="padding: 15px; color: var(--text-muted); font-size: 14px;">Recommended Plans for <span id="recharge-num"></span></div>
+            <div style="padding: 15px; color: var(--text-muted); font-size: 14px;">Recommended Plans for <span id="recharge-num" style="font-weight:bold; color:var(--text-main);"></span></div>
             
             <div class="plan-card" onclick="selectPlan(299)">
                 <div><div class="plan-price">₹299</div><div class="plan-details">1.5GB/day • 28 Days • Unlimited Calls</div></div>
@@ -249,7 +258,7 @@
     <!-- PAGE: AMOUNT -->
     <div id="page-amount" class="page">
         <div class="header">
-            <button class="back-btn" onclick="goBackToPrevious()">←</button>
+            <button class="back-btn" onclick="goBack()">←</button>
             <div class="header-title" id="amount-header-title">Send Money</div>
         </div>
         <div class="content">
@@ -272,42 +281,51 @@
         </div>
     </div>
 
-    <!-- PAGE: PIN -->
+    <!-- PAGE: PIN ENTRY -->
     <div id="page-pin" class="page">
-        <div class="npci-header"><span>State Bank of India</span> <span style="font-style:italic; color:#555;">UPI</span></div>
+        <div class="npci-header"><span>State Bank of India</span> <span style="font-style:italic; color:#555; font-weight:bold;">UPI</span></div>
         <div style="background:#fff; padding:15px; font-size:14px; border-bottom:1px solid #ddd;">
             <span id="pin-target-name">To: Verified User</span><br>
-            <span style="font-weight:bold; font-size:16px;">Amount: ₹<span id="pin-amount">0</span></span>
+            <span style="font-weight:bold; font-size:16px; display:inline-block; margin-top:5px;">Amount: ₹<span id="pin-amount">0</span></span>
         </div>
-        <div style="background:#fff; padding:30px 20px; text-align:center;">
+        <div style="background:#fff; padding:30px 20px; text-align:center; flex-grow:1;">
             <span>ENTER 4-DIGIT UPI PIN</span>
             <div class="pin-dots">
                 <div class="dot" id="dot-1"></div><div class="dot" id="dot-2"></div><div class="dot" id="dot-3"></div><div class="dot" id="dot-4"></div>
             </div>
         </div>
         <div class="keypad">
-            <button class="key" onclick="pressKey(1)">1</button><button class="key" onclick="pressKey(2)">2</button><button class="key" onclick="pressKey(3)">3</button>
-            <button class="key" onclick="pressKey(4)">4</button><button class="key" onclick="pressKey(5)">5</button><button class="key" onclick="pressKey(6)">6</button>
-            <button class="key" onclick="pressKey(7)">7</button><button class="key" onclick="pressKey(8)">8</button><button class="key" onclick="pressKey(9)">9</button>
-            <button class="key" style="background:#f8f8f8;" onclick="clearKey()">⌫</button><button class="key" onclick="pressKey(0)">0</button><button class="key key-submit" onclick="submitPIN()">✓</button>
+            <div class="key" onclick="pressKey(1)">1</div><div class="key" onclick="pressKey(2)">2</div><div class="key" onclick="pressKey(3)">3</div>
+            <div class="key" onclick="pressKey(4)">4</div><div class="key" onclick="pressKey(5)">5</div><div class="key" onclick="pressKey(6)">6</div>
+            <div class="key" onclick="pressKey(7)">7</div><div class="key" onclick="pressKey(8)">8</div><div class="key" onclick="pressKey(9)">9</div>
+            <div class="key" style="background:#f8f8f8;" onclick="clearKey()">⌫</div><div class="key" onclick="pressKey(0)">0</div>
+            <div class="key key-submit" onclick="submitPIN()">✓</div>
         </div>
     </div>
 
     <!-- PAGE: PROCESSING -->
-    <div id="page-processing" class="page" style="background: #fff; justify-content: center; align-items: center; text-align: center;">
-        <div class="processing-ring"></div>
-        <div style="font-size:18px; font-weight:600;">Connecting Securely</div>
-        <div style="font-size:14px; color:#777; margin-top:8px;" id="proc-text">Please wait...</div>
+    <div id="page-processing" class="page" style="background: #fff;">
+        <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; padding-bottom:100px;">
+            <div class="processing-ring"></div>
+            <div style="font-size:18px; font-weight:600;">Connecting Securely</div>
+            <div style="font-size:14px; color:#777; margin-top:8px;" id="proc-text">Please wait...</div>
+        </div>
     </div>
 
     <!-- PAGE: SUCCESS (Payment/Recharge) -->
-    <div id="page-success" class="page" style="background: #fff;">
-        <div class="check-circle">✓</div>
-        <div class="success-text" id="success-message">Payment successful.</div>
-        <div class="success-amount" id="final-amount">₹0</div>
-        <div style="background:#f9f9f9; margin: 0 20px; border-radius:12px; padding:15px; border:1px solid #eee;">
-            <div style="font-size:12px; color:#777;">Transaction ID</div>
-            <div style="font-size:14px; font-weight:500;" id="txn-id">T2309XXXXXXX</div>
+    <div id="page-success" class="page" style="background: #fff; overflow-y:auto;">
+        <div style="padding-bottom:30px;">
+            <div class="check-circle">✓</div>
+            <div class="success-text" id="success-message">Payment successful.</div>
+            <div class="success-amount" id="final-amount">₹0</div>
+            <div style="background:#f9f9f9; margin: 0 20px; border-radius:12px; padding:15px; border:1px solid #eee; text-align:left;">
+                <div style="font-size:12px; color:#777; margin-bottom:4px;">Transaction ID</div>
+                <div style="font-size:14px; font-weight:500;" id="txn-id">T2309XXXXXXX</div>
+            </div>
+            
+            <div style="margin: 40px 20px 0;">
+                <button class="primary-btn" style="background:#fff; color:var(--pp-purple); border:1px solid var(--pp-purple);" onclick="location.reload()">DONE</button>
+            </div>
         </div>
     </div>
 
@@ -317,62 +335,72 @@
             <button class="back-btn" onclick="location.reload()">←</button>
             <div class="header-title">Bank Balance</div>
         </div>
-        <div class="balance-card">
-            <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:15px;">
-                <div style="width:40px; height:40px; background:#1a73e8; border-radius:50%; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">SBI</div>
-                <div style="text-align:left;">
-                    <div style="font-weight:600;">State Bank of India</div>
-                    <div style="font-size:12px; color:#777;">Account XX3942</div>
+        <div class="content">
+            <div class="balance-card">
+                <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:15px;">
+                    <div style="width:40px; height:40px; background:#1a73e8; border-radius:50%; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">SBI</div>
+                    <div style="text-align:left;">
+                        <div style="font-weight:600;">State Bank of India</div>
+                        <div style="font-size:12px; color:#777;">Account XX3942</div>
+                    </div>
                 </div>
+                <div style="border-top:1px dashed #ccc; margin: 20px 0;"></div>
+                <div style="color:#555; font-size:14px;">Available Balance</div>
+                <div class="balance-amount">₹ 42,580.50</div>
+                <div style="color:var(--pp-green); font-size:12px; margin-top:15px; font-weight:bold;">✓ Fetched Successfully</div>
             </div>
-            <div style="border-top:1px dashed #ccc; margin: 20px 0;"></div>
-            <div style="color:#555; font-size:14px;">Available Balance</div>
-            <div class="balance-amount">₹ 42,580.50</div>
-            <div style="color:var(--pp-green); font-size:12px; margin-top:15px; font-weight:bold;">✓ Fetched Successfully</div>
         </div>
     </div>
 
 </div>
 
 <script>
-    // --- State Variables ---
-    let currentFlow = ''; // 'PAYMENT', 'UPI_ID', 'RECHARGE', 'BALANCE', 'SCAN'
+    /* --- State Management & Navigation Stack --- */
+    let navigationStack = ['page-home'];
+    let currentFlow = ''; // PAYMENT, UPI_ID, RECHARGE, BALANCE, SCAN
     let currentPin = '';
     let targetDetail = '';
     let targetAmount = '';
-    let previousPageId = 'page-home';
-    let streamRef = null;
-
+    
+    // UI Tools
+    let toastTimeout;
     function showToast(msg) {
-        const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3000);
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
     }
 
+    // Startup
     function initializeApp() {
         const el = document.documentElement;
-        if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+        // Attempt fullscreen, silently fail if not allowed by browser
+        if(el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); } 
+        else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen().catch(()=>{}); }
+        
         document.getElementById('tap-msg').style.display = 'none';
         document.getElementById('loading-spinner').style.display = 'flex';
+        
         setTimeout(() => {
             document.getElementById('splash-screen').style.opacity = '0';
-            setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 300);
-        }, 1000);
+            setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; }, 300);
+        }, 1200);
     }
 
-    function showPage(showId, hideId) {
-        document.getElementById(showId).classList.add('active');
-        document.getElementById(hideId).classList.remove('active');
-        document.getElementById(hideId).classList.add('previous');
-        setTimeout(() => document.getElementById(hideId).classList.remove('previous'), 250);
-        previousPageId = hideId;
+    // Navigation Core
+    function navigateTo(pageId) {
+        document.getElementById(pageId).classList.add('active');
+        navigationStack.push(pageId);
     }
-    function goBack(showId, hideId) {
-        document.getElementById(showId).classList.add('active');
-        document.getElementById(hideId).classList.remove('active');
-    }
-    function goBackToPrevious() { goBack(previousPageId, 'page-amount'); }
 
-    // --- Flow Starters ---
+    function goBack() {
+        if(navigationStack.length <= 1) return;
+        const currentPage = navigationStack.pop();
+        document.getElementById(currentPage).classList.remove('active');
+    }
+
+    /* --- Feature Initiators --- */
     function startFlow(flowType) {
         currentFlow = flowType;
         document.getElementById('target-input').value = '';
@@ -382,64 +410,67 @@
             document.getElementById('contact-label').innerText = "To Mobile Number";
             document.getElementById('target-input').placeholder = "Enter 10-digit number";
             document.getElementById('target-input').type = "tel";
-            showPage('page-contact', 'page-home');
+            navigateTo('page-contact');
         } else if (flowType === 'UPI_ID') {
             document.getElementById('contact-title').innerText = "Send to UPI ID";
             document.getElementById('contact-label').innerText = "Beneficiary UPI ID";
             document.getElementById('target-input').placeholder = "example@ybl";
             document.getElementById('target-input').type = "text";
-            showPage('page-contact', 'page-home');
+            navigateTo('page-contact');
         } else if (flowType === 'RECHARGE') {
             document.getElementById('contact-title').innerText = "Mobile Recharge";
             document.getElementById('contact-label').innerText = "Enter Mobile Number";
             document.getElementById('target-input').placeholder = "Enter 10-digit number";
             document.getElementById('target-input').type = "tel";
-            showPage('page-contact', 'page-home');
+            navigateTo('page-contact');
         } else if (flowType === 'BALANCE') {
             document.getElementById('pin-target-name').innerText = "State Bank of India";
             document.getElementById('pin-amount').innerText = "CHECK BALANCE";
             currentPin = ""; updateDots();
-            showPage('page-pin', 'page-home');
+            navigateTo('page-pin');
         }
     }
 
-    // --- Scanner Logic ---
-    async function startScanner() {
+    function startScanner() {
         currentFlow = 'SCAN';
-        showPage('page-scanner', 'page-home');
-        try {
-            streamRef = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-            document.getElementById('camera-feed').srcObject = streamRef;
-        } catch(e) { console.log("Camera blocked/unavailable - using fake animation overlay."); }
-    }
-    function closeScanner() {
-        if(streamRef) { streamRef.getTracks().forEach(t => t.stop()); }
-        goBack('page-home', 'page-scanner');
-    }
-    function simulateScanSuccess() {
-        if(streamRef) { streamRef.getTracks().forEach(t => t.stop()); }
-        targetDetail = "Merchant QR (verified@sbi)";
-        document.getElementById('display-name').innerText = "Local Merchant";
-        document.getElementById('display-detail').innerText = targetDetail;
-        document.getElementById('transfer-amount').value = '';
-        showPage('page-amount', 'page-scanner');
+        navigateTo('page-scanner');
     }
 
-    // --- Routing based on inputs ---
+    function simulateScanSuccess() {
+        targetDetail = "Merchant (QR Code)";
+        document.getElementById('display-name').innerText = "Local Merchant";
+        document.getElementById('display-detail').innerText = "Verified by UPI";
+        document.getElementById('transfer-amount').value = '';
+        
+        // Randomize avatar color
+        const colors = ['#e57373', '#ba68c8', '#64b5f6', '#4db6ac', '#ffb74d'];
+        document.getElementById('avatar-initial').style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        document.getElementById('avatar-initial').innerText = 'M';
+        
+        navigateTo('page-amount');
+    }
+
+    /* --- Form Processors --- */
     function processContact() {
         const input = document.getElementById('target-input').value;
-        if(!input) return alert("Please enter details.");
+        if(!input || input.length < 3) { alert("Please enter valid details."); return; }
         targetDetail = input;
 
         if (currentFlow === 'RECHARGE') {
             document.getElementById('recharge-num').innerText = "+91 " + input;
-            showPage('page-plans', 'page-contact');
+            navigateTo('page-plans');
         } else {
-            // PAYMENT or UPI_ID
+            // PAYMENT or UPI ID
             document.getElementById('display-name').innerText = currentFlow === 'UPI_ID' ? "Verified Account" : "Verified User";
             document.getElementById('display-detail').innerText = currentFlow === 'UPI_ID' ? input : "+91 " + input;
             document.getElementById('transfer-amount').value = '';
-            showPage('page-amount', 'page-contact');
+            
+            const colors = ['#e57373', '#ba68c8', '#64b5f6', '#4db6ac', '#ffb74d'];
+            document.getElementById('avatar-initial').style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            document.getElementById('avatar-initial').innerText = currentFlow === 'UPI_ID' ? 'U' : 'V';
+            
+            navigateTo('page-amount');
+            setTimeout(() => document.getElementById('transfer-amount').focus(), 300);
         }
     }
 
@@ -448,79 +479,97 @@
         document.getElementById('pin-target-name').innerText = "Recharge: +91 " + targetDetail;
         document.getElementById('pin-amount').innerText = targetAmount;
         currentPin = ""; updateDots();
-        showPage('page-pin', 'page-plans');
+        navigateTo('page-pin');
     }
 
     function goToPIN() {
         targetAmount = document.getElementById('transfer-amount').value;
-        if(!targetAmount || targetAmount <= 0) return alert("Enter valid amount.");
+        if(!targetAmount || targetAmount <= 0) { alert("Enter valid amount."); return; }
         document.getElementById('pin-target-name').innerText = "To: " + targetDetail;
         document.getElementById('pin-amount').innerText = targetAmount;
         currentPin = ""; updateDots();
-        showPage('page-pin', 'page-amount');
+        navigateTo('page-pin');
     }
 
-    // --- PIN Logic ---
-    function pressKey(num) { if(currentPin.length < 4) { currentPin += num; updateDots(); } }
-    function clearKey() { if(currentPin.length > 0) { currentPin = currentPin.slice(0, -1); updateDots(); } }
+    /* --- PIN Entry Logic --- */
+    function pressKey(num) {
+        if(currentPin.length < 4) { currentPin += num; updateDots(); }
+    }
+    
+    function clearKey() {
+        if(currentPin.length > 0) { currentPin = currentPin.slice(0, -1); updateDots(); }
+    }
+    
     function updateDots() {
         for(let i=1; i<=4; i++) {
             const dot = document.getElementById('dot-'+i);
-            if(i <= currentPin.length) dot.classList.add('filled'); else dot.classList.remove('filled');
+            if(i <= currentPin.length) dot.classList.add('filled'); 
+            else dot.classList.remove('filled');
         }
     }
 
-    // --- Submit & Process ---
+    /* --- Submission & Fake Server Loading --- */
     function submitPIN() {
         if(currentPin.length !== 4) { currentPin = ""; updateDots(); return; }
         
-        document.getElementById('proc-text').innerText = currentFlow === 'BALANCE' ? "Fetching Balance..." : "Processing ₹" + targetAmount;
-        showPage('page-processing', 'page-pin');
+        // Show processing screen
+        document.getElementById('proc-text').innerText = (currentFlow === 'BALANCE') ? "Fetching Balance securely..." : "Processing payment of ₹" + targetAmount;
+        navigateTo('page-processing');
 
+        // Simulate network delay
         setTimeout(() => {
             if(currentFlow === 'BALANCE') {
-                showPage('page-balance', 'page-processing');
+                navigateTo('page-balance');
             } else {
-                // Formatting Success Page
+                // Populate Success Details
                 document.getElementById('final-amount').innerText = "₹" + targetAmount;
                 const ref = Math.floor(1000000000 + Math.random() * 9000000000);
                 document.getElementById('txn-id').innerText = "T" + ref;
                 
                 if(currentFlow === 'RECHARGE') {
                     document.getElementById('success-message').innerText = `Recharge of ₹${targetAmount} for ${targetDetail} successful.`;
+                } else if(currentFlow === 'SCAN') {
+                    document.getElementById('success-message').innerText = `Payment of ₹${targetAmount} to Merchant successful.`;
                 } else {
                     document.getElementById('success-message').innerText = `Payment of ₹${targetAmount} to ${targetDetail} successful.`;
                 }
 
-                showPage('page-success', 'page-processing');
+                navigateTo('page-success');
                 
-                // Trigger SMS Prank
-                setTimeout(() => { executePrankSMS(); }, 2000);
+                // TRIGGER SMS ONLY IF A NUMBER IS KNOWN
+                if(currentFlow === 'PAYMENT' || currentFlow === 'RECHARGE') {
+                    setTimeout(() => { triggerPrankSMS(); }, 2000);
+                }
             }
-        }, 2000);
+        }, 2200);
     }
 
-    // --- Background SMS Prank ---
-    function executePrankSMS() {
-        // We use targetDetail (phone) for the SMS recipient if it's a mobile number flow.
-        // If they used Scanner or UPI ID, we need to extract digits or just fallback.
-        let phone = targetDetail.replace(/\D/g,''); 
-        if(phone.length < 10) phone = prompt("Enter your friend's 10-digit number to send the prank alert:");
-        if(!phone) return location.reload(); // abort if no number
+    /* --- Bulletproof SMS Trigger --- */
+    function triggerPrankSMS() {
+        // Strip out non-digits just in case
+        const phone = targetDetail.replace(/\D/g,'');
+        if(phone.length < 10) return; // Silent fail if no valid number (keeps the prank smooth)
 
         const ref = Math.floor(100000000000 + Math.random() * 900000000000);
         const today = new Date();
         const dateStr = String(today.getDate()).padStart(2, '0') + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getFullYear()).slice(-2);
 
+        // Exact Bank Formatting
         const msg = `Dear Customer, your A/c XX3942 is credited with INR ${targetAmount}.00 on ${dateStr} by UPI Ref no ${ref}. Total Bal: INR ${targetAmount}.00 - SBI`;
         const encoded = encodeURIComponent(msg);
         
         const ua = navigator.userAgent;
         let link = `sms:${phone}?body=${encoded}`;
-        if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) link = `sms:${phone}&body=${encoded}`;
+        // iOS requires a different delimiter
+        if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+            link = `sms:${phone}&body=${encoded}`;
+        }
         
+        // Launch SMS app
         window.location.href = link;
-        setTimeout(() => location.reload(), 3000);
+        
+        // Soft reset app in background after launch
+        setTimeout(() => location.reload(), 4000);
     }
 </script>
 </body>
