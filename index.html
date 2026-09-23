@@ -28,66 +28,35 @@
             --card-bg: #ffffff;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            background-color: var(--bg-main);
-            height: 100dvh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-        }
+        body { background-color: var(--bg-main); height: 100dvh; overflow: hidden; display: flex; justify-content: center; }
 
         /* --- SPLASH & LOADING SCREEN --- */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--pp-purple); z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: white; cursor: pointer; transition: opacity 0.3s;
-        }
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--pp-purple); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; transition: opacity 0.3s; }
         .pe-logo-text { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 50px; }
         .tap-text { position: absolute; bottom: 60px; font-size: 14px; opacity: 0.8; animation: pulse 1.5s infinite; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; }
         .loading-spinner-container { position: absolute; bottom: 60px; display: none; flex-direction: column; align-items: center; }
         .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
 
         /* --- APP CONTAINER & PAGES --- */
-        .app-container {
-            width: 100%; max-width: 480px; height: 100dvh; background: var(--bg-main);
-            position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-        .page {
-            position: absolute; top: 0; left: 100%; width: 100%; height: 100%;
-            background: #fff; transition: left 0.25s ease-in-out; display: flex; flex-direction: column;
-        }
+        .app-container { width: 100%; max-width: 480px; height: 100dvh; background: var(--bg-main); position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .page { position: absolute; top: 0; left: 100%; width: 100%; height: 100%; background: #fff; transition: left 0.25s ease-in-out; display: flex; flex-direction: column; }
         .page.active { left: 0; }
         .page.previous { left: -100%; }
 
         /* --- HOME SCREEN SPECIFICS --- */
         #page-home { background: var(--bg-main); overflow-y: auto; padding-bottom: 70px; display: block; }
         
-        .home-header {
-            background: var(--pp-purple); color: #fff; padding: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
-        }
+        .home-header { background: var(--pp-purple); color: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .user-loc { display: flex; align-items: center; gap: 10px; }
-        .home-avatar { width: 36px; height: 36px; border-radius: 50%; background: #ccc; border: 1px solid #fff; overflow: hidden; }
-        .home-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .home-avatar { width: 36px; height: 36px; border-radius: 50%; background: #ccc; border: 1px solid #fff; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #e1bee7; color: var(--pp-purple); font-weight: bold; font-size: 18px; }
         .loc-text { display: flex; align-items: center; font-size: 14px; font-weight: 500; }
         .loc-text .flag { margin-right: 5px; font-size: 16px; }
         .header-icons { display: flex; gap: 15px; }
-        .header-icons i { font-size: 24px; }
+        .header-icons i { font-size: 24px; cursor: pointer; }
 
-        .promo-banner {
-            background: #0066cc; color: #fff; margin: 15px; border-radius: 12px;
-            padding: 20px; position: relative; overflow: hidden; display: flex;
-        }
+        .promo-banner { background: #0066cc; color: #fff; margin: 15px; border-radius: 12px; padding: 20px; position: relative; overflow: hidden; display: flex; cursor: pointer; }
         .promo-text { font-size: 18px; font-weight: 600; width: 60%; line-height: 1.3; }
         .promo-btn { background: #fff; color: #0066cc; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 10px; }
 
@@ -103,24 +72,23 @@
         .upi-id-bar { background: #f8f9fa; margin-top: 15px; padding: 10px 15px; border-radius: 8px; font-size: 12px; color: #555; display: flex; justify-content: space-between; align-items: center; }
         
         .quick-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 15px 15px; }
-        .quick-link-box { background: #3b76e1; color: #fff; border-radius: 10px; padding: 10px 5px; text-align: center; font-size: 11px; font-weight: 500; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .quick-link-box { background: #3b76e1; color: #fff; border-radius: 10px; padding: 10px 5px; text-align: center; font-size: 11px; font-weight: 500; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
         .quick-link-box i { font-size: 20px; }
 
-        .upi-lite-banner { background: #fff; margin: 0 15px 15px; border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 13px; font-weight: 500; }
+        .upi-lite-banner { background: #fff; margin: 0 15px 15px; border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 13px; font-weight: 500; cursor: pointer;}
         .upi-lite-logo { font-weight: 900; font-style: italic; color: #333; }
 
-        /* Recharge Icons Override */
         .recharge-circle { background: transparent; border: 1px solid #ddd; color: var(--pp-purple); border-radius: 50%; }
 
         /* Bottom Nav */
-        .bottom-nav {
-            position: absolute; bottom: 0; left: 0; width: 100%; background: #fff;
-            display: flex; justify-content: space-around; padding: 10px 0;
-            border-top: 1px solid #e0e0e0; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
-        }
-        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); gap: 4px; }
+        .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e0e0e0; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); gap: 4px; cursor: pointer; }
         .nav-item.active { color: var(--pp-purple); }
-        .nav-item.active i { font-family: 'Material Icons'; } /* Solid active icon */
+        .nav-item.active i { font-family: 'Material Icons'; }
+
+        /* --- TOAST NOTIFICATION --- */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 20px; padding: 12px 16px; position: absolute; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.3s, visibility 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        #toast.show { visibility: visible; opacity: 1; }
 
         /* --- SUB-PAGES HEADER & CONTENT (Original Prank Flow) --- */
         .header { display: flex; align-items: center; padding: 16px 20px; background: var(--pp-purple); color: #fff; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -181,7 +149,10 @@
 </head>
 <body>
 
-<!-- SPLASH SCREEN FOR FULLSCREEN TRIGGER & LOADING -->
+<!-- Global Toast Notification -->
+<div id="toast">Message</div>
+
+<!-- SPLASH SCREEN -->
 <div id="splash-screen" onclick="initializeApp()">
     <div class="pe-logo-text">PhonePe</div>
     <div class="tap-text" id="tap-msg">Tap anywhere to start</div>
@@ -197,23 +168,21 @@
     <div id="page-home" class="page active">
         <!-- Header -->
         <div class="home-header">
-            <div class="user-loc">
-                <div class="home-avatar" style="background: #e1bee7; color: var(--pp-purple); display:flex; justify-content:center; align-items:center; font-weight:bold;">
-                    G
-                </div>
+            <div class="user-loc" onclick="showToast('Profile section is updating. Please wait.')">
+                <div class="home-avatar">G</div>
                 <div class="loc-text">
                     <span class="flag">🇮🇳</span> Chennai <i class="material-icons-outlined" style="font-size:16px;">arrow_drop_down</i>
                 </div>
             </div>
             <div class="header-icons">
-                <i class="material-icons-outlined">qr_code_scanner</i>
-                <i class="material-icons-outlined">notifications</i>
-                <i class="material-icons-outlined">help_outline</i>
+                <i class="material-icons-outlined" onclick="showToast('Camera permission required for QR Scanner')">qr_code_scanner</i>
+                <i class="material-icons-outlined" onclick="showToast('No new notifications')">notifications</i>
+                <i class="material-icons-outlined" onclick="showToast('Help center is currently offline')">help_outline</i>
             </div>
         </div>
 
         <!-- Promo Banner -->
-        <div class="promo-banner">
+        <div class="promo-banner" onclick="showToast('Loading stores nearby...')">
             <div>
                 <div class="promo-text">Did you know you can find stores nearby?</div>
                 <div class="promo-btn">Explore Now ></div>
@@ -224,49 +193,49 @@
         <div class="section-card">
             <div class="section-title">Money Transfers</div>
             <div class="grid-4">
-                <!-- LINK TO PRANK FLOW -->
+                <!-- THE ONLY WORKING LINK FOR THE PRANK -->
                 <div class="grid-item" onclick="startPrankFlow()">
                     <div class="icon-circle"><i class="material-icons">person</i></div>
                     <div class="grid-text">To Mobile<br>Number</div>
                 </div>
-                <!-- Dead Links for realism -->
-                <div class="grid-item">
+                <!-- Fake interactive links -->
+                <div class="grid-item" onclick="showToast('Bank servers are currently busy.')">
                     <div class="icon-circle"><i class="material-icons">account_balance</i></div>
                     <div class="grid-text">To Bank/<br>UPI ID</div>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" onclick="showToast('Please link a secondary account first.')">
                     <div class="icon-circle"><i class="material-icons">replay</i></div>
                     <div class="grid-text">To Self<br>Account</div>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" onclick="showToast('Checking balance... Please wait.')">
                     <div class="icon-circle"><i class="material-icons">account_balance_wallet</i></div>
                     <div class="grid-text">Check Bank<br>Balance</div>
                 </div>
             </div>
-            <div class="upi-id-bar">
-                <span>UPI ID: gokulp@ybl</span>
+            <div class="upi-id-bar" onclick="showToast('UPI ID copied to clipboard')">
+                <span>UPI ID: gokul.p@ybl</span>
                 <i class="material-icons-outlined" style="font-size: 14px;">arrow_forward_ios</i>
             </div>
         </div>
 
         <!-- Quick Links -->
         <div class="quick-links">
-            <div class="quick-link-box">
+            <div class="quick-link-box" onclick="showToast('Wallet KYC pending')">
                 <i class="material-icons-outlined">account_balance_wallet</i>
                 PhonePe Wallet
             </div>
-            <div class="quick-link-box">
+            <div class="quick-link-box" onclick="showToast('You have 0 scratch cards.')">
                 <i class="material-icons-outlined">card_giftcard</i>
                 Rewards
             </div>
-            <div class="quick-link-box">
+            <div class="quick-link-box" onclick="showToast('Opening referral program...')">
                 <i class="material-icons-outlined">campaign</i>
                 Refer & Earn ₹100
             </div>
         </div>
 
         <!-- UPI Lite -->
-        <div class="upi-lite-banner">
+        <div class="upi-lite-banner" onclick="showToast('UPI Lite setup temporarily disabled.')">
             <span class="upi-lite-logo">UPI <span style="font-weight:normal">LITE</span></span> 
             <span style="color:#777; flex-grow:1;">Super-fast payments • No failures</span>
             <i class="material-icons-outlined" style="font-size: 16px; color:#555;">arrow_forward_ios</i>
@@ -276,19 +245,19 @@
         <div class="section-card">
             <div class="section-title">Recharge & Pay Bills</div>
             <div class="grid-4">
-                <div class="grid-item">
+                <div class="grid-item" onclick="showToast('Fetching operator plans...')">
                     <div class="icon-circle recharge-circle"><i class="material-icons-outlined">stay_current_portrait</i></div>
                     <div class="grid-text">Mobile<br>Recharge</div>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" onclick="showToast('DTH services are down for maintenance.')">
                     <div class="icon-circle recharge-circle"><i class="material-icons-outlined">satellite</i></div>
                     <div class="grid-text">DTH</div>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" onclick="showToast('Select your electricity board first.')">
                     <div class="icon-circle recharge-circle"><i class="material-icons-outlined">lightbulb</i></div>
                     <div class="grid-text">Electricity</div>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" onclick="showToast('No active credit cards linked.')">
                     <div class="icon-circle recharge-circle"><i class="material-icons-outlined">credit_card</i></div>
                     <div class="grid-text">Credit Card<br>Bill</div>
                 </div>
@@ -298,10 +267,10 @@
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
             <div class="nav-item active"><i class="material-icons">home</i>Home</div>
-            <div class="nav-item"><i class="material-icons-outlined">storefront</i>Stores</div>
-            <div class="nav-item"><i class="material-icons-outlined">verified_user</i>Insurance</div>
-            <div class="nav-item"><i class="material-icons-outlined">currency_rupee</i>Wealth</div>
-            <div class="nav-item"><i class="material-icons-outlined">history</i>History</div>
+            <div class="nav-item" onclick="showToast('No stores found nearby.')"><i class="material-icons-outlined">storefront</i>Stores</div>
+            <div class="nav-item" onclick="showToast('Insurance portal loading...')"><i class="material-icons-outlined">verified_user</i>Insurance</div>
+            <div class="nav-item" onclick="showToast('Portfolio update in progress.')"><i class="material-icons-outlined">currency_rupee</i>My Money</div>
+            <div class="nav-item" onclick="showToast('Fetching past transactions...')"><i class="material-icons-outlined">history</i>History</div>
         </div>
     </div>
 
@@ -412,6 +381,18 @@
 </div>
 
 <script>
+    // --- Toast Logic ---
+    let toastTimeout;
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
     // --- Initial Loading Sequence ---
     function initializeApp() {
         const elem = document.documentElement;
